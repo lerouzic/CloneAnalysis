@@ -1,6 +1,6 @@
 library(readxl)
 
-dd <- as.data.frame(read_excel("../data/FACSdata.xlsx", col_types=c("text", "numeric", "numeric", "numeric")))
+dd <- as.data.frame(suppressWarnings(read_excel("../data/FACSdata.xlsx", col_types=c("text", "numeric", "numeric", "numeric"))))
 
 dd$Genotype[dd$Genotype %in% c("Control 1", "Control 2")] <- "Control 1&2" 
 dd$Genotype[dd$Genotype %in% c("control 1 bis", "Control 3", "Control 4")] <- "Control Other"
@@ -8,6 +8,11 @@ dd$Genotype[dd$Genotype %in% c("control 1 bis", "Control 3", "Control 4")] <- "C
 dd <- dd[-219,] # Line 219 is nonsensical
 
 colnames(dd)[2] <- "All"
+
+# Is it normal that some data is not integer?
+dd$All <- round(dd$All)
+dd$GFP <- round(dd$GFP)
+
 sn <- strsplit(dd$Genotype, split=" ")
 
 dd$Genotype <- factor(
@@ -44,6 +49,7 @@ p.stars <- function(p) ifelse(p < 0.001, "***", ifelse(p < 0.01, "**", ifelse(p 
 ans$st.1 <- p.stars(ans$pa.1)
 ans$st.2 <- p.stars(ans$pa.2)
 ans$st.3 <- p.stars(ans$pa.3)
+ans$st.old <- sapply(rownames(ans), function(rn) {w <- which(dd$Genotype == rn); if (length(w) > 0) as.character(sn[[w[1]]][3]) else ""})
 
 write.table(ans, "../results/FACS.txt", quote=FALSE, sep="\t")
 
