@@ -2,7 +2,8 @@ library(readxl)
 
 dd <- as.data.frame(read_excel("../data/FACSdata.xlsx", col_types=c("text", "numeric", "numeric", "numeric")))
 
-dd$Genotype[dd$Genotype %in% c("Control 1", "control 1 bis", "Control 2", "Control 3", "Control 4")] <- "Control merged" 
+dd$Genotype[dd$Genotype %in% c("Control 1", "Control 2")] <- "Control 1&2" 
+dd$Genotype[dd$Genotype %in% c("control 1 bis", "Control 3", "Control 4")] <- "Control Other"
 
 dd <- dd[-219,] # Line 219 is nonsensical
 
@@ -10,7 +11,7 @@ colnames(dd)[2] <- "All"
 sn <- strsplit(dd$Genotype, split=" ")
 
 dd$Genotype <- factor(paste(sapply(sn, "[", 1), sapply(sn, "[", 2), sep="."))
-dd$Genotype <- relevel(dd$Genotype, "Control.merged")
+dd$Genotype <- relevel(dd$Genotype, "Control.1&2")
 
 lm1  <- lm(I(dd$GFP/dd$All) ~ dd$Genotype)
 glm1 <- glm(cbind(dd$GFP, dd$All-dd$GFP) ~ dd$Genotype, family=binomial())
