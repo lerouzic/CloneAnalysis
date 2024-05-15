@@ -10,7 +10,9 @@ dd <- dd[-219,] # Line 219 is nonsensical
 colnames(dd)[2] <- "All"
 sn <- strsplit(dd$Genotype, split=" ")
 
-dd$Genotype <- factor(paste(sapply(sn, "[", 1), sapply(sn, "[", 2), sep="."))
+dd$Genotype <- factor(
+	paste0(sapply(sn, "[", 1), ".", sapply(sn, "[", 2), sapply(sn, function(ss) if (length(ss) > 3) paste0(".", ss[4]) else ""))
+	)
 dd$Genotype <- relevel(dd$Genotype, "Control.1&2")
 
 lm1  <- lm(I(dd$GFP/dd$All) ~ dd$Genotype)
