@@ -1,5 +1,31 @@
 library(readxl)
 
+logit    <- function(p) log(p / (1-p))
+invlogit <- function(u) 1/(1+exp(-u))
+
+logitp2freq <- function(lpG, lpR, lpY) {
+	pG <- invlogit(lpG)
+	pR <- (1-pG)*invlogit(lpR)
+	pY <- (1-pG)*(1-pR)*invlogit(lpY)
+	pB <- 1-pG - pR - pY
+	c(G=pG, R=pR, Y=pY, B=pB)
+}
+
+estim.freq <- function(tab) {
+	mll <- function(lpG, lpR, lpY) {
+		prob <- setNames(rep(1, length(tab)), nm=names(tab))
+		fp <- logitp2freq(lpG, lpR, lpY)
+		prob[which(names(prob) == "")] <- 0 # Assuming observations without colors are absent
+		prob <- prob * ifelse(grepl("G", names(prob)), fp["G"], 1-fp["G"])
+		prob <- prob * ifelse(grepl("R", names(prob)), fp["R"], 1-fp["R"])
+		prob <- prob * ifelse(grepl("Y", names(prob)), fp["Y"], 1-fp["Y"])
+		prob <- prob * ifelse(grepl("B", names(prob)), fp["B"], 1-fp["B"])
+		-dmultinom(tab, prob=prob, log=TRUE)
+	}
+	mm <- stats4::mle(mll, start=c(lpG=0, lpR=0, lpY=0))
+	list(lp.estimates = mm@coef, p.estimates=logitp2freq(mm@coef[1], mm@coef[2], mm@coef[3]))
+}
+
 cc <- as.data.frame(suppressWarnings(read_excel("../data/FlybowPolyclonality.xlsx")))
 
 cc$'Time HS' <- factor(cc$'Time HS')
