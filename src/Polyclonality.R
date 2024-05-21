@@ -29,16 +29,16 @@ estim.freq <- function(tab) {
 cc <- as.data.frame(suppressWarnings(read_excel("../data/FlybowPolyclonality.xlsx")))
 
 cc$'Time HS' <- factor(cc$'Time HS')
-cc$Days <- factor(ifelse(cc$'Days post-HS' <= 7, "short", "long"))
+cc$Days <- factor(ifelse(cc$'Days post-HS' < 21, "short", "long"))
 cc$'Tumor' <- factor(cc$'Tumor')
 
 lvl <- apply(expand.grid(list(c("","G"), c("","R"), c("","Y"), c("","B"))), 1, paste, collapse="") 
 
 summ <- by(cc, list(cc$'Time HS', cc$'Days', cc$'Tumor'), FUN=function(ccc) {
-			G <- ccc$'GFP'      > 0 | ccc$'GFP in tumors'      > 0
-			R <- ccc$'mCherry'  > 0 | ccc$'mCherry in tumors'  > 0
-			Y <- ccc$'mCitrine' > 0 | ccc$'mCitrine in tumors' > 0
-			B <- ccc$'mTurquoise2'>0| ccc$'mTurquoise2 in tumors' > 0
+			G <- if (ccc$Tumor == "F") ccc$'GFP'       > 0 else ccc$'GFP in tumors'         > 0
+			R <- if (ccc$Tumor == "F") ccc$'mCherry'   > 0 else ccc$'mCherry in tumors'     > 0
+			Y <- if (ccc$Tumor == "F") ccc$'mCitrine'  > 0 else ccc$'mCitrine in tumors'    > 0
+			B <- if (ccc$Tumor == "F") ccc$'mTurquoise2'>0 else ccc$'mTurquoise2 in tumors' > 0
 			pap <- factor(paste0(ifelse(G, "G", ""), ifelse(R, "R", ""), ifelse(Y, "Y", ""), ifelse(B, "B", "")), levels=lvl)
 			table(pap)
 		})
@@ -56,3 +56,6 @@ pdf("../results/poly2.pdf", width=14, height=6)
 	text(x=bb[10], y=c(0.2, 0.5, 0.8, 0.9), as.character(1:4), col="white")
 dev.off()
 
+# Comp: Tumor long vs non-tumor short (check without long/short)
+
+# Comp: frequencies of colors at different times
