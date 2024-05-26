@@ -4,7 +4,7 @@ library(multicool)
 
 
 ############################## Constants ###############################
-max.nbclones <- 15
+max.nbclones <- 12
 
 col.names <-  c("G","R","Y","B")
 colors    <-  c(G="green", R="darkred", Y="yellow", B="turquoise")
@@ -89,7 +89,6 @@ predict.f <- function(lmuC, lpG, lpR, lpY) {
 
 maxlik.mle <- function(obs, CI=0.95) {
 	mll <- function(lmuC, lpG, lpR, lpY) {
-		print(exp(lmuC))
 		if (exp(lmuC) > max.nbclones) return (mll(log(max.nbclones), lpG, lpR, lpY) + 1000*(lmuC-log(max.nbclones)))
 		if (exp(lmuC) < 1)            return (mll(log(1), lpG, lpR, lpY) + 1/exp(lmuC)^2)
 		pred.f <- predict.f(lmuC, lpG, lpR, lpY)
@@ -100,11 +99,13 @@ maxlik.mle <- function(obs, CI=0.95) {
 	
 	if (class(fit) == "try-error") return(list(coef=NA, x=NA))
 	
-	# fit.ci <- confint(fit, level=CI)
+	fit.ci <- confint(fit, level=CI)
 		
 	list(
 		coef     = fit@coef, 
-		x        = c(muC=unname(exp(fit@coef["lmuC"])), logitp2p(fit@coef["lpG"], fit@coef["lpR"], fit@coef["lpY"]))
+		x        = c(muC=unname(exp(fit@coef["lmuC"])), logitp2p(fit@coef["lpG"], fit@coef["lpR"], fit@coef["lpY"])),
+		CI       = fit.ci,
+		CI.x     = rbind(muC=unname(exp(fit.ci["lmuC",])), cbind(logitp2p(fit.ci["lpG",1], fit.ci["lpR",1], fit.ci["lpY",1]), logitp2p(fit.ci["lpG",2], fit.ci["lpR",2], fit.ci["lpY",2])))
 	) 
 }
 
