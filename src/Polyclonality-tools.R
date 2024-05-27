@@ -4,10 +4,10 @@ library(multicool)
 
 
 ############################## Constants ###############################
-max.nbclones <- 12
+max.nbclones <- 18
 
 col.names <-  c("G","R","Y","B")
-colors    <-  c(G="green", R="darkred", Y="yellow", B="turquoise")
+colors    <-  c(G="springgreen2", R="firebrick2", Y="gold2", B="cyan3")
 obs.names <-  apply(expand.grid(lapply(col.names, function(x) c("", x))), 1, paste, collapse="") 
 
 ######################## Frequency manipulation ########################
@@ -110,7 +110,7 @@ maxlik.mle <- function(obs, CI=0.95) {
 }
 
 plot.distcomp <- function(frq1, frq2, ...) {
-	barplot(rbind(frq1, frq2), beside=TRUE)
+	barplot(rbind(frq1, frq2), beside=TRUE, ...)
 	
 	
 }

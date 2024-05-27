@@ -50,3 +50,6 @@ rsconnect/
 
 # Generated figures and tables
 results/
+
+# Cache results
+src/*.rds
