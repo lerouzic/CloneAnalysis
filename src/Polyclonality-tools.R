@@ -109,8 +109,8 @@ maxlik.mle <- function(obs, CI=0.95) {
 	) 
 }
 
-plot.distcomp <- function(frq1, frq2, ...) {
-	barplot(rbind(frq1, frq2), beside=TRUE, ...)
+plot.distcomp <- function(frq1, frq2=NULL, ...) {
+	barplot(if(is.null(frq2)) frq1 else rbind(frq1, frq2), beside=TRUE, ...)
 	
 	
 }
