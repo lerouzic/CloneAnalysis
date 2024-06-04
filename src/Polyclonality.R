@@ -110,9 +110,7 @@ pdf("../results/poly5.pdf", width=8, height=10)
 		ccol <- c(obs="darkgray", pred="lightgray")
 		obs  <- summ[[nn]]
 		pred <- do.call(predict.f, as.list(fitsumm[[nn]]$coef))
-		pval <- chisq.test(obs[-1], p=pred[-1], simulate.p.value=TRUE, B=1e4)$p.value
-		stars <- if(pval > 0.05) "" else if (pval > 0.01) "*" else if (pval > 0.001) "**" else "***"
-		plot.distcomp(obs, sum(obs)*pred, main=paste0(nn, if (stars != "") paste0(" (", stars, ")")), las=2, col=ccol)
+		plot.distcomp(obs, sum(obs)*pred, main=nn, las=2, col=ccol)
 		if (nn == names(summ)[1])
 			legend("topright", fill=ccol, legend=c("Observed", "Predicted"))
 	}
@@ -128,7 +126,7 @@ pdf("../results/poly6.pdf", width=8, height=6)
 	for (tt in c("F","T")) {
 		for (dr in c("short","long")) {
 			x <- do.call(rbind, summ[grepl(dr, names(summ)) & grepl(tt, names(summ))])
-			plot.distcomp(x, main=paste0(dr, ", ", tt), las=2, col=ccol6)
+			plot.distcomp(x, main=paste0(dr, ", ", if(tt == "F") "Control" else "Tumor"), ylim=c(0,50), las=2, col=ccol6)
 			if (tt=="F" && dr == "short") legend("topleft", fill=ccol6, legend=names(ccol6))
 		}
 	}
@@ -138,17 +136,14 @@ dev.off()
 pdf("../results/poly7.pdf", width=4, height=4)
 
 	ccol7 <- c(F="gray", T="gray20")
-	llty7 <- c(short=1, long=2)
 	layout(1)
 	par(mar=c(4, 4, 2, 1))
-	plot(NULL, xlim=c(0, 2), ylim=c(0,160), xlab="HS time", ylab="Number of observations")
+	plot(NULL, xlim=c(0, 2), ylim=c(0,200), xlab="HS time", ylab="Number of observations")
 	for (tt in c("F","T")) {
-		for (dr in c("short","long")) {
-			x <- sapply(summ[grepl(dr, names(summ)) & grepl(tt, names(summ))], sum)
-			lines(v.tim, x, col=ccol7[tt], lty=llty7[dr])
-		}
+		x <- sapply(summ[grepl(tt, names(summ))], sum)
+		points(v.tim, colSums(matrix(x, nrow=2)), col=ccol7[tt], type="b")
 	}
-	legend("topleft", lty=rep(llty7, 2), col=rep(ccol7, each=2), legend=outer(c("short","long"), c("F","T"), FUN=paste))
+	legend("topleft", lty=1, col=rep(ccol7), legend=c("Control", "Tumor"))
 
 dev.off()
 
