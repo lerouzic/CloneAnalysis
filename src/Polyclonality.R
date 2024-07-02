@@ -102,22 +102,6 @@ pdf("../results/poly4.pdf", width=4, height=4)
 dev.off()
 
 
-pdf("../results/poly5.pdf", width=8, height=10)
-
-	layout(matrix(1:length(summ), byrow=TRUE, ncol=2))
-	par(mar=c(4, 4, 2, 1))
-	for (nn in names(summ)) {
-		ccol <- c(obs="darkgray", pred="lightgray")
-		obs  <- summ[[nn]]
-		pred <- do.call(predict.f, as.list(fitsumm[[nn]]$coef))
-		plot.distcomp(obs, sum(obs)*pred, main=nn, las=2, col=ccol)
-		if (nn == names(summ)[1])
-			legend("topright", fill=ccol, legend=c("Observed", "Predicted"))
-	}
-
-dev.off()
-
-
 pdf("../results/poly6.pdf", width=8, height=6)
 
 	layout(matrix(1:4, byrow=TRUE, ncol=2))
@@ -144,29 +128,5 @@ pdf("../results/poly7.pdf", width=4, height=4)
 		points(v.tim, colSums(matrix(x, nrow=2)), col=ccol7[tt], type="b")
 	}
 	legend("topleft", lty=1, col=rep(ccol7), legend=c("Control", "Tumor"))
-
-dev.off()
-
-
-pdf("../results/poly8.pdf", width=4, height=4)
-
-	ccol8 <- c('30 min'="gray80",'1 hr'="gray50",'2 hr'="gray20")
-	ppch8 <- c(short=1, long=2)
-	
-	cc$Clonecount <- cc$mCherry + cc$mCitrine + cc$mTurquoise2 + cc$GFP
-	
-	par(mar=c(4, 4, 2, 1))
-	plot(NULL, xlim=c(0, max.nbclones), ylim=c(0,max(cc$Clonecount)), xlab="Predicted # clones", ylab="Observed # clones")
-	abline(a=0, b=1, lty=3)
-	for (hh in c("30 min","1 hr", "2 hr")) {
-		for (dr in c("short","long")) {
-			points(
-					rep(fitsumm[[paste(hh, dr, "F", sep=".")]]$x["muC"], sum(cc$'Time HS'==hh & cc$Days==dr & cc$Tumor=="F")), 
-					cc$Clonecount[cc$'Time HS'==hh & cc$Days==dr & cc$Tumor=="F"], 
-					pch=ppch8[dr], col=ccol8[hh], cex=0.5)
-			points(fitsumm[[paste(hh, dr, "F", sep=".")]]$x["muC"], mean(cc$Clonecount[cc$'Time HS'==hh & cc$Days==dr & cc$Tumor=="F"]), pch=ppch8[dr], col=ccol8[hh], cex=2)
-		}
-	}
-	legend("topleft", pch=c(ppch8, rep(NA, 3)), fill=c(rep(NA,2),ccol8), legend=c(names(ppch8), names(ccol8)), border=c(rep("white",2), rep("black",3)))
 
 dev.off()
